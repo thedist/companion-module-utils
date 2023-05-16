@@ -6,6 +6,8 @@ This module currently has the following methods to help draw graphics in an imag
 [Corner](#corner)  
 [Icon](#icon)  
 [Rectangle](#rectangle)  
+[StackImage](#stackImage)  
+
 
 ---
 ## Bar
@@ -126,6 +128,7 @@ exampleBorderFeedback: {
 ---
 ## Corner
 ### Description
+Generates an indicator in the corner of the image
 
 ![](./images/cornerExample.png) 
 
@@ -296,4 +299,53 @@ exampleRectFeedback: {
     }
   }
 }
+```
+
+---
+## StackImage
+### Description
+Stacks multiple image buffers of the same resolution into a single image buffer
+
+### Required Arguments
+An array of image buffers
+
+### Example
+```javascript
+const { graphics } = require('companion-module-utils')
+
+...
+
+audioStateFeedback: {
+  type: 'advanced',
+  name: 'audio - Mic and Headset State',
+  options: [
+    ...
+  ],
+  callback: (feedback) => {
+    const optionsMic = {
+      width: feedback.image.width,
+      height: feedback.image.height,
+      offsetX: 13,
+      offsetY: 10,
+      type: 'mic1'
+    }
+
+    const optionsHeadset = {
+      width: feedback.image.width,
+      height: feedback.image.height,
+      offsetX: 33,
+      offsetY: 10,
+      type: 'headset1'
+    }
+
+    const micIcon = graphics.icon(optionsMic)
+    const headsetIcon = graphics.icon(optionsHeadset)
+
+
+    return {
+      imageBuffer: graphics.stackImage([micIcon, headsetIcon])
+    }
+  }
+}
+
 ```
