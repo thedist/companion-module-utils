@@ -1,5 +1,6 @@
+import { PNG } from 'pngjs'
 import icons from './icons.json'
-import { Cache } from './util'
+import { Cache, combineRGB } from './util'
 
 export interface BarColor {
   size: number
@@ -8,7 +9,17 @@ export interface BarColor {
   backgroundOpacity: number
 }
 
-type IconType = 'mic1' | 'mic2' | 'mic3' | 'mic4' | 'mic5' | 'headset1' | 'headset2' | 'headset3' | 'headset4'
+type IconType =
+  | 'mic1'
+  | 'mic2'
+  | 'mic3'
+  | 'mic4'
+  | 'mic5'
+  | 'headset1'
+  | 'headset2'
+  | 'headset3'
+  | 'headset4'
+  | 'custom'
 
 export interface OptionsBar {
   width: number
@@ -45,6 +56,9 @@ export interface OptionsIcon {
   width: number
   height: number
   type: IconType
+  custom?: Uint8Array
+  customWidth?: number
+  customHeight?: number
   offsetX?: number
   offsetY?: number
 }
@@ -61,6 +75,10 @@ export interface OptionsRect {
   offsetX?: number
   offsetY?: number
   opacity?: number
+}
+
+export interface OptionParseBase64 {
+  alpha?: boolean
 }
 
 const cache = new Cache()
@@ -230,25 +248,41 @@ export const icon = (options: OptionsIcon): Uint8Array => {
   if (cache.get(cacheKey)) return cache.get(cacheKey) as Uint8Array
 
   const buffer = Buffer.alloc(options.width * options.height * 4)
-  const icon = icons[options.type]
   const offsetX = options.offsetX || 0
   const offsetY = options.offsetY || 0
+  let icon: number[]
   let iconWidth = 0
   let iconHeight = 0
 
-  if (options.type.startsWith('mic')) {
-    iconWidth = 22
-    iconHeight = 30
-  } else if (options.type.startsWith('headset')) {
-    iconWidth = 30
-    iconHeight = 30
+  if (options.type === 'custom') {
+    if (!options.custom || !options.customWidth || !options.customHeight)
+      throw new Error('custom, customWidth and customHeight MUST be provided when using a custom icon')
+    icon = [...options.custom]
+    iconWidth = options.customWidth
+    iconHeight = options.customHeight
+  } else {
+    icon = icons[options.type]
+
+    if (options.type.startsWith('mic')) {
+      iconWidth = 22
+      iconHeight = 30
+    } else if (options.type.startsWith('headset')) {
+      iconWidth = 30
+      iconHeight = 30
+    }
   }
 
   for (let y = offsetY; y < offsetY + iconHeight; y++) {
     for (let x = offsetX; x < offsetX + iconWidth; x++) {
       const index = y * options.width + x
-      const color = icon.shift() || 0
-      buffer.writeUint32BE(color, index * 4)
+      if (options.type === 'custom') {
+        const color =
+          (icon.shift() || 0) * Math.pow(2, 24) + combineRGB(icon.shift() || 0, icon.shift() || 0, icon.shift() || 0)
+        buffer.writeUint32BE(color, index * 4)
+      } else {
+        const color = icon.shift() || 0
+        buffer.writeUint32BE(color, index * 4)
+      }
     }
   }
 
@@ -342,4 +376,38 @@ export const stackImage = (buffers: Uint8Array[]): Uint8Array => {
   }
 
   return stack
+}
+
+/**
+ * Converts a base64 encoded PNG such as that used by png64 feedback into an imagebuffer that can be used with other functions
+ *
+ * @param png64 - base64 encoded PNG string
+ * @param options - Required and optional paramsd
+ * @returns An image buffer
+ */
+export const parseBase64 = (png64: string, options?: OptionParseBase64): Promise<Uint8Array> => {
+  return new Promise((resolve, reject) => {
+    const cacheKey = `parseBase64-${png64}`
+    if (cache.get(cacheKey)) return resolve(cache.get(cacheKey) as Uint8Array)
+
+    new PNG({ inputHasAlpha: options?.alpha ?? true }).parse(Buffer.from(png64, 'base64'), (err, data) => {
+      if (err) return reject(err)
+
+      const buffer = Buffer.alloc(data.width * data.height * 4)
+
+      for (let y = 0; y < data.height; y++) {
+        for (let x = 0; x < data.width; x++) {
+          const i = (data.width * y + x) << 2
+          const color =
+            data.data[i + 3] * Math.pow(2, 24) + combineRGB(data.data[i], data.data[i + 1], data.data[i + 2])
+          const index = y * data.width + x
+
+          buffer.writeUInt32BE(color, index * 4)
+        }
+      }
+
+      cache.set(cacheKey, buffer)
+      resolve(buffer)
+    })
+  })
 }

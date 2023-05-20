@@ -40,5 +40,9 @@
     "rimraf": "^5.0.0",
     "ts-jest": "^29.1.0",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@types/pngjs": "^6.0.1",
+    "pngjs": "^7.0.0"
   }
 }
