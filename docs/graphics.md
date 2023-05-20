@@ -6,7 +6,8 @@ This module currently has the following methods to help draw graphics in an imag
 [Corner](#corner)  
 [Icon](#icon)  
 [Rectangle](#rectangle)  
-[StackImage](#stackImage)  
+[StackImage](#stackimage)  
+[ParseBase64](#parsebase64)  
 
 
 ---
@@ -347,5 +348,71 @@ audioStateFeedback: {
     }
   }
 }
+
+```
+
+---
+## ParseBase64
+### Description
+Takes a base64 encoded PNG and generates an image buffer. If the PNG is equal to the resolution of the button then the image buffer can be used directly in feedback, otherwise it should be used in conjuction with the `icon` function to place that image buffer within the correct resolution.
+
+### Required Arguments
+A base64 string
+
+## Optional Arguments
+| Param | Value |
+| ----- | ----- |
+| `alpha` | true / false (default true) |
+
+### Example
+
+```javascript
+const { graphics } = require('companion-module-utils')
+
+...
+
+fullSizePNG: {
+  type: 'advanced',
+  name: 'Parse a Base64 PNG and render directly to a button',
+  options: [
+    ...
+  ],
+  callback: async (feedback) => {
+    const png64 = '...'
+    const imageBuffer = await graphics.parseBase64(png64, { alpha: true })
+
+    return {
+      imageBuffer: imageBuffer
+    }
+  }
+},
+
+smallPNG: {
+  type: 'advanced',
+  name: 'Parse a Base64 PNG, position it using icon, then render to a button',
+  options: [
+    ...
+  ],
+  callback: async (feedback) => {
+    const png64 = '...'
+    const icon = await graphics.parseBase64(png64, { alpha: true })
+
+    const imageBuffer = graphics.icon({
+      width: feedback.image.width,
+      height: feedback.image.height,
+      offsetX: 20,
+      offsetY: 20,
+      type: 'custom',
+      custom: icon,
+      customWidth: 40,
+      customHeight: 40
+    })
+
+    return {
+      imageBuffer: imageBuffer
+    }
+  }
+},
+
 
 ```

@@ -5,7 +5,7 @@ This project provides utility functions to simplify some of the complex tasks th
 * Create simple button graphics for use in Bitfocus Companion modules
 * Stack multiple graphics together to create more complex images
 * A range of presets to simplify the use of common graphics
-* Zero dependencies for production, and minimal dependencies for development
+* Minimal dependencies
 * Supports Companion 3.0 and newer
 
 ## Installation
