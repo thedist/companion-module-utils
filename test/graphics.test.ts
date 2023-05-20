@@ -3,7 +3,7 @@ import { combineRGB } from '../src/util'
 import data from './data.json'
 
 
-describe('test generating a bar', () => {
+describe('test generating graphics', () => {
   it('should return a bar image', () => {
     const bar: Uint8Array = Buffer.from(data.bar)
     const options: graphics.OptionsBar = {
@@ -65,6 +65,16 @@ describe('test generating a bar', () => {
     expect(graphics.icon(options)).toEqual(icon)
   })
 
+  it('should throw an error if given a custom icon with no data/width/height', () => {
+    const options: graphics.OptionsIcon = {
+      width: 72,
+      height: 72,
+      type: 'custom'
+    }
+
+    expect(() => graphics.icon(options)).toThrowError('custom, customWidth and customHeight MUST be provided when using a custom icon')
+  })
+
   it('should return a rectangle image', () => {
     const rect: Uint8Array = Buffer.from(data.rect)
     const options: graphics.OptionsRect = {
@@ -92,5 +102,15 @@ describe('test stacking images', () => {
     const stack: Uint8Array = Buffer.from(data.stack)
 
     expect(graphics.stackImage([border, rect])).toEqual(stack)
+  })
+})
+
+describe('parsing a base64 png to an imagebuffer', () => {
+  it('should parse a string and return a uint8array imagebuffer with specified length', async () => {
+    let png64 = data.png64
+    let imageBuffer = await graphics.parseBase64(png64)
+
+    expect(Buffer.isBuffer(imageBuffer)).toEqual(true)
+    expect(imageBuffer.length).toEqual(400)
   })
 })
