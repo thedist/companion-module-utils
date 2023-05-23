@@ -46,7 +46,7 @@ describe('test generating graphics', () => {
       color: combineRGB(255, 0, 0),
       opacity: 255,
       location: 'topRight',
-      size: 8
+      size: 24
     }
 
     expect(graphics.corner(options)).toEqual(corner)

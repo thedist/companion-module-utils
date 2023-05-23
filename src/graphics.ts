@@ -47,7 +47,7 @@ export interface OptionsCorner {
   width: number
   height: number
   color: number
-  size: number
+  size?: number
   location: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight'
   opacity?: number
 }
@@ -221,12 +221,14 @@ export const corner = (options: OptionsCorner): Uint8Array => {
   const hAlign = options.location.includes('Right') ? 'right' : 'left'
   const vAlign = options.location.includes('top') ? 'top' : 'bottom'
 
-  for (let y = 0; y < options.height * 0.33; y++) {
+  const sizeHeight = options.size || options.height * 0.33
+  const sizeWidth = options.size || options.width * 0.33
+
+  for (let y = 0; y < sizeHeight; y++) {
     const trueY = vAlign === 'bottom' ? options.height - 1 - y : y
 
-    for (let x = 0; x < options.width * 0.33 - y; x++) {
+    for (let x = 0; x < sizeWidth - y; x++) {
       const trueX = hAlign === 'right' ? options.width - 1 - x : x
-
       const index = trueY * options.width + trueX
       buffer.writeUint32BE(color, index * 4)
     }
