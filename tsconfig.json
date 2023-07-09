@@ -31,7 +31,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "include": ["src/*.ts"],
+  "include": ["src/*.ts", "src/*.json"],
   "compileOnSave": false,
   "exclude": ["node_modules/**"]
 }
