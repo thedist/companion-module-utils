@@ -127,6 +127,66 @@ exampleBorderFeedback: {
 ```
 
 ---
+## Circle
+### Description
+Generates an image buffer of a circle at a specified radius. Width and Height are 2 x radius
+
+![](./images/circlesExample.png)
+
+### Required Options
+| Param | Value |
+| ----- | ----- |
+| `radius` | number |
+| `color` | number |
+
+### Optional options
+| Param | Value |
+| ----- | ----- |
+| `opacity` | 0 - 255 |
+
+### Exmaple
+```javascript
+const { graphics } = require('companion-module-utilz')
+
+...
+
+exampleBorderFeedback: {
+  type: 'advanced',
+  name: 'Border example',
+  description: 'Checks a value, and if true returns a border around the edge of the button',
+  options: [
+    ...
+  ],
+  callback: (feedback) => {
+    if (booleanVariable) {
+      const options = {
+        radius: 8,
+        color: combineRgb(255, 0, 0),
+        opacity: 255
+      }
+
+      const circle = graphics.circle(options)
+
+      const circleIcon = graphics.icon({
+          width: feedback.image.width,
+          height: feedback.image.height,
+          custom: circle1
+          type: 'custom',
+          customHeight: 16,
+          customWidth: 16,
+          offsetX: 28,
+          offsetY: 28
+        })
+
+      return {
+        imageBuffer: circleIcon
+      }
+    }
+  }
+}
+```
+
+---
 ## Corner
 ### Description
 Generates an indicator in the corner of the image

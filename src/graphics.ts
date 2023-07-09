@@ -43,6 +43,12 @@ export interface OptionsBorder {
   type?: 'border' | 'top' | 'bottom' | 'left' | 'right'
 }
 
+export interface OptionsCircle {
+  radius: number
+  color: number
+  opacity?: number
+}
+
 export interface OptionsCorner {
   width: number
   height: number
@@ -193,6 +199,36 @@ export const border = (options: OptionsBorder): Uint8Array => {
         if (x < options.size) drawPixel(x, y)
       } else if (type === 'right') {
         if (x > options.width - options.size) drawPixel(x, y)
+      }
+    }
+  }
+
+  cache.set(cacheKey, buffer)
+  return buffer
+}
+
+/**
+ * Generates an image buffer of a circle at a specified radius. Width and Height are 2 x radius
+ * 
+ * @param options - Required and optional params for the indicator
+ * @returns Image buffer containing a circle as per options
+ */
+export const circle = (options: OptionsCircle): Uint8Array => {
+  // Create a key for the image buffer given the options provided, and return a cached buffer if it exists
+  const cacheKey = `circle-${JSON.stringify(options)}`
+  if (cache.get(cacheKey)) return cache.get(cacheKey) as Uint8Array
+  
+  const diameter = options.radius * 2
+  const buffer = Buffer.alloc(diameter * diameter * 4)
+  const opacity = options.opacity ?? 255
+  const color = opacity * Math.pow(2, 24) + options.color
+
+  for (let y = 0; y < diameter; y++) {
+    for (let x = 0; x < diameter; x++) {
+      const withinRadius = Math.sqrt(Math.pow(x - diameter / 2, 2) + Math.pow(y - diameter / 2, 2)) <= options.radius
+      if(withinRadius) {
+        const index = y * diameter + x
+        buffer.writeUint32BE(color, index * 4)
       }
     }
   }
