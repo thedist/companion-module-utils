@@ -10,16 +10,40 @@ export interface BarColor {
 }
 
 type IconType =
+  | 'directionDown'
+  | 'directionDownLeft'
+  | 'directionDownRight'
+  | 'directionLeft'
+  | 'directionRight'
+  | 'directionUp'
+  | 'directionUpLeft'
+  | 'directionUpRight'
+  | 'forward'
+  | 'headset1'
+  | 'headset2'
+  | 'headset3'
+  | 'headset4'
   | 'mic1'
   | 'mic2'
   | 'mic3'
   | 'mic4'
   | 'mic5'
-  | 'headset1'
-  | 'headset2'
-  | 'headset3'
-  | 'headset4'
+  | 'pause'
+  | 'play'
+  | 'power'
+  | 'record'
+  | 'recordRed'
+  | 'rewind'
+  | 'stop'
   | 'custom'
+
+export interface Icon {
+  type: IconType
+  base64: string
+  argb: number[]
+  width: number
+  height: number
+}
 
 export interface OptionsBar {
   width: number
@@ -61,7 +85,7 @@ export interface OptionsCorner {
 export interface OptionsIcon {
   width: number
   height: number
-  type: IconType
+  type: IconType | 'Custom'
   custom?: Uint8Array
   customWidth?: number
   customHeight?: number
@@ -87,6 +111,12 @@ export interface OptionParseBase64 {
   alpha?: boolean
 }
 
+export interface OptionToPNG64 {
+  image: Buffer | Uint8Array
+  width: number
+  height: number
+}
+
 const cache = new Cache()
 
 /**
@@ -107,9 +137,8 @@ export const bar = (options: OptionsBar): Uint8Array => {
   const position = Math.floor(increment * options.value)
 
   // Create a key for the image buffer given the options provided, and return a cached buffer if it exists
-  const cacheKey = `bar-${options.width}-${options.height}-${JSON.stringify(options.colors)}-${
-    options.opacity || 0
-  }-${offsetX}-${offsetY}-${options.barLength}-${options.barWidth}-${options.type}-${position}`
+  const cacheKey = `bar-${options.width}-${options.height}-${JSON.stringify(options.colors)}-${options.opacity || 0
+    }-${offsetX}-${offsetY}-${options.barLength}-${options.barWidth}-${options.type}-${position}`
   if (cache.get(cacheKey)) return cache.get(cacheKey) as Uint8Array
 
   // Calculate the bar image
@@ -167,9 +196,8 @@ export const border = (options: OptionsBorder): Uint8Array => {
   const type = options.type || 'border'
 
   // Create a key for the image buffer given the options provided, and return a cached buffer if it exists
-  const cacheKey = `border-${options.width}-${options.height}-${options.color}-${options.opacity || 0}-${
-    options.size
-  }-${type}`
+  const cacheKey = `border-${options.width}-${options.height}-${options.color}-${options.opacity || 0}-${options.size
+    }-${type}`
   if (cache.get(cacheKey)) return cache.get(cacheKey) as Uint8Array
 
   const buffer = Buffer.alloc(options.width * options.height * 4)
@@ -209,7 +237,7 @@ export const border = (options: OptionsBorder): Uint8Array => {
 
 /**
  * Generates an image buffer of a circle at a specified radius. Width and Height are 2 x radius
- * 
+ *
  * @param options - Required and optional params for the indicator
  * @returns Image buffer containing a circle as per options
  */
@@ -217,7 +245,7 @@ export const circle = (options: OptionsCircle): Uint8Array => {
   // Create a key for the image buffer given the options provided, and return a cached buffer if it exists
   const cacheKey = `circle-${JSON.stringify(options)}`
   if (cache.get(cacheKey)) return cache.get(cacheKey) as Uint8Array
-  
+
   const diameter = options.radius * 2
   const buffer = Buffer.alloc(diameter * diameter * 4)
   const opacity = options.opacity ?? 255
@@ -226,7 +254,7 @@ export const circle = (options: OptionsCircle): Uint8Array => {
   for (let y = 0; y < diameter; y++) {
     for (let x = 0; x < diameter; x++) {
       const withinRadius = Math.sqrt(Math.pow(x - diameter / 2, 2) + Math.pow(y - diameter / 2, 2)) <= options.radius
-      if(withinRadius) {
+      if (withinRadius) {
         const index = y * diameter + x
         buffer.writeUint32BE(color, index * 4)
       }
@@ -245,9 +273,8 @@ export const circle = (options: OptionsCircle): Uint8Array => {
  */
 export const corner = (options: OptionsCorner): Uint8Array => {
   // Create a key for the image buffer given the options provided, and return a cached buffer if it exists
-  const cacheKey = `corner-${options.width}-${options.height}-${options.color}-${options.opacity || 0}-${
-    options.size
-  }-${options.location}`
+  const cacheKey = `corner-${options.width}-${options.height}-${options.color}-${options.opacity || 0}-${options.size
+    }-${options.location}`
   if (cache.get(cacheKey)) return cache.get(cacheKey) as Uint8Array
 
   const buffer = Buffer.alloc(options.width * options.height * 4)
@@ -282,32 +309,29 @@ export const corner = (options: OptionsCorner): Uint8Array => {
  */
 export const icon = (options: OptionsIcon): Uint8Array => {
   // Create a key for the image buffer given the options provided, and return a cached buffer if it exists
-  const cacheKey = `rect-${JSON.stringify(options)}`
+  const cacheKey = `icon-${JSON.stringify(options)}`
   if (cache.get(cacheKey)) return cache.get(cacheKey) as Uint8Array
 
   const buffer = Buffer.alloc(options.width * options.height * 4)
   const offsetX = options.offsetX || 0
   const offsetY = options.offsetY || 0
-  let icon: number[]
   let iconWidth = 0
   let iconHeight = 0
+  let iconData: number[]
 
   if (options.type === 'custom') {
     if (!options.custom || !options.customWidth || !options.customHeight)
       throw new Error('custom, customWidth and customHeight MUST be provided when using a custom icon')
-    icon = [...options.custom]
+    iconData = [...options.custom]
     iconWidth = options.customWidth
     iconHeight = options.customHeight
   } else {
-    icon = icons[options.type]
+    const icon = icons.find((icon) => icon.type === options.type)
+    if (!icon) throw new Error(`Can't find matching icon data of type ${options.type}`)
 
-    if (options.type.startsWith('mic')) {
-      iconWidth = 22
-      iconHeight = 30
-    } else if (options.type.startsWith('headset')) {
-      iconWidth = 30
-      iconHeight = 30
-    }
+    iconData = [...icon.argb]
+    iconHeight = icon.height
+    iconWidth = icon.width
   }
 
   for (let y = offsetY; y < offsetY + iconHeight; y++) {
@@ -315,10 +339,11 @@ export const icon = (options: OptionsIcon): Uint8Array => {
       const index = y * options.width + x
       if (options.type === 'custom') {
         const color =
-          (icon.shift() || 0) * Math.pow(2, 24) + combineRGB(icon.shift() || 0, icon.shift() || 0, icon.shift() || 0)
+          (iconData.shift() || 0) * Math.pow(2, 24) +
+          combineRGB(iconData.shift() || 0, iconData.shift() || 0, iconData.shift() || 0)
         buffer.writeUint32BE(color, index * 4)
       } else {
-        const color = icon.shift() || 0
+        const color = iconData.shift() || 0
         buffer.writeUint32BE(color, index * 4)
       }
     }
@@ -420,7 +445,7 @@ export const stackImage = (buffers: Uint8Array[]): Uint8Array => {
  * Converts a base64 encoded PNG such as that used by png64 feedback into an imagebuffer that can be used with other functions
  *
  * @param png64 - base64 encoded PNG string
- * @param options - Required and optional paramsd
+ * @param options - Required and optional params
  * @returns An image buffer
  */
 export const parseBase64 = (png64: string, options?: OptionParseBase64): Promise<Uint8Array> => {
@@ -448,4 +473,33 @@ export const parseBase64 = (png64: string, options?: OptionParseBase64): Promise
       resolve(buffer)
     })
   })
+}
+
+
+/**
+ * Converts an imageBuffer into a base64 encoded PNG string for use as a buttons png64 styling
+ *
+ * @param options - Required and optional params
+ * @returns An base64 encoded PNG
+ */
+export const toPNG64 = (options: OptionToPNG64): string => {
+  const png = new PNG({
+    width: options.width,
+    height: options.height,
+    filterType: -1,
+    inputHasAlpha: true,
+    colorType: 6,
+    deflateLevel: 0
+  })
+
+  const newBuffer = Buffer.alloc(options.width * options.height * 4)
+
+  options.image.forEach((value, index) => {
+    const position = (index + 3) % 4 + Math.floor(index / 4) * 4
+    newBuffer[position] = value
+  })
+
+  png.data = newBuffer
+  const pngBuffer = PNG.sync.write(png)
+  return `data:image/png;base64,${pngBuffer.toString('base64')}`
 }
