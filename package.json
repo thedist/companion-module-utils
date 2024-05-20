@@ -1,6 +1,6 @@
 {
   "name": "companion-module-utils",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Utility tools for use in Bitfocus Companion modules",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

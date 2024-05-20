@@ -3,6 +3,7 @@ This module currently has the following methods to help draw graphics in an imag
 
 [Bar](#bar)  
 [Border](#border)  
+[Circle](#circle)  
 [Corner](#corner)  
 [Icon](#icon)  
 [Rectangle](#rectangle)  
@@ -14,7 +15,7 @@ This module currently has the following methods to help draw graphics in an imag
 ---
 ## Bar
 ### Description
-generates an imagebuffer of a bar representing a value from 0 to 100. The bar can be colored in different sections by providing multiple `colors`, where the total size equals 100. This for example allows for both simple progress bars to more complex volume meters with different colored sections for different dB levels.
+Generates an imagebuffer of a bar representing a value from 0 to 100. The bar can be colored in different sections by providing multiple `colors`, where the total size equals 100. This for example allows for both simple progress bars to more complex volume meters with different colored sections for different dB levels.
 
 ![](./images/barExample.png)  
 
@@ -35,6 +36,7 @@ generates an imagebuffer of a bar representing a value from 0 to 100. The bar ca
 | `offsetX` | number |
 | `offsetY` | number |
 | `opacity` | 0 - 255 |
+| `reverse` | boolean |
 
 ### Example
 ```javascript
@@ -58,11 +60,11 @@ micVolumeFeedback: {
         { size: 25, color: combineRgb(255, 255, 0), background: combineRgb(255, 255, 0), backgroundOpacity: 64 },
         { size: 25, color: combineRgb(255, 0, 0), background: combineRgb(255, 0, 0), backgroundOpacity: 64 },
       ],
-      barLength: 62.
-      narWidth: 6,
+      barLength: 62,
+      barWidth: 6,
       value: Math.pow(volume / 100, 0.25) * 100,
       type: 'vertical',
-      offsetX: 64
+      offsetX: 64,
       offsetY: 5,
       opacity: 255
     }
@@ -256,7 +258,7 @@ The mic icons are 22x30, and the headset icons are 30x30, all other icons are 50
 | ----- | ----- |
 | `width` | number |
 | `height` | number |
-| `type` | `directionDown`, `directionDownLeft`, `directionDownRight`, `directionLeft`, `directionRight`, `directionUp`, `directionUpLeft`, `directionUpRight`, `forward`, `headset1`, `headset2`, `headset3`, `headset4`, `mic1`, `mic2`, `mic3`, `mic4`, `mic5`, `pause`, `play`, `power`, `record`, `recordRed`, `rewind`, `stop` |
+| `type` | `directionDown`, `directionDownLeft`, `directionDownRight`, `directionLeft`, `directionRight`, `directionUp`, `directionUpLeft`, `directionUpRight`, `forward`, `headset1`, `headset2`, `headset3`, `headset4`, `mic1`, `mic2`, `mic3`, `mic4`, `mic5`, `pause`, `play`, `playPause`, `power`, `record`, `recordRed`, `rewind`, `stop` |
 
 
 ### Optional options
@@ -305,6 +307,7 @@ micStateFeedback: {
 ---
 ## Rectangle
 ### Description
+Generates a rectangle of the specified size/color
 
 ![](./images/rectExample.png) 
 

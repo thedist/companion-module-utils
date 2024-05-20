@@ -30,6 +30,7 @@ type IconType =
   | 'mic5'
   | 'pause'
   | 'play'
+  | 'playPause'
   | 'power'
   | 'record'
   | 'recordRed'
@@ -56,6 +57,7 @@ export interface OptionsBar {
   offsetX?: number
   offsetY?: number
   opacity?: number
+  reverse?: boolean
 }
 
 export interface OptionsBorder {
@@ -137,8 +139,11 @@ export const bar = (options: OptionsBar): Uint8Array => {
   const position = Math.floor(increment * options.value)
 
   // Create a key for the image buffer given the options provided, and return a cached buffer if it exists
-  const cacheKey = `bar-${options.width}-${options.height}-${JSON.stringify(options.colors)}-${options.opacity || 0
-    }-${offsetX}-${offsetY}-${options.barLength}-${options.barWidth}-${options.type}-${position}`
+  const cacheKey = `bar-${options.width}-${options.height}-${JSON.stringify(options.colors)}-${
+    options.opacity || 0
+  }-${offsetX}-${offsetY}-${options.barLength}-${options.barWidth}-${options.type}-${position}-${
+    options.reverse || 'false'
+  }`
   if (cache.get(cacheKey)) return cache.get(cacheKey) as Uint8Array
 
   // Calculate the bar image
@@ -160,6 +165,11 @@ export const bar = (options: OptionsBar): Uint8Array => {
     for (let j = 0; j < options.barWidth; j++) {
       bar.push(barOpacity * Math.pow(2, 24) + barColor)
     }
+  }
+
+  // Reverse the direction the bar is displayed
+  if (options.reverse) {
+    bar.reverse()
   }
 
   // Render the bar onto the buffer
@@ -196,8 +206,9 @@ export const border = (options: OptionsBorder): Uint8Array => {
   const type = options.type || 'border'
 
   // Create a key for the image buffer given the options provided, and return a cached buffer if it exists
-  const cacheKey = `border-${options.width}-${options.height}-${options.color}-${options.opacity || 0}-${options.size
-    }-${type}`
+  const cacheKey = `border-${options.width}-${options.height}-${options.color}-${options.opacity || 0}-${
+    options.size
+  }-${type}`
   if (cache.get(cacheKey)) return cache.get(cacheKey) as Uint8Array
 
   const buffer = Buffer.alloc(options.width * options.height * 4)
@@ -273,8 +284,9 @@ export const circle = (options: OptionsCircle): Uint8Array => {
  */
 export const corner = (options: OptionsCorner): Uint8Array => {
   // Create a key for the image buffer given the options provided, and return a cached buffer if it exists
-  const cacheKey = `corner-${options.width}-${options.height}-${options.color}-${options.opacity || 0}-${options.size
-    }-${options.location}`
+  const cacheKey = `corner-${options.width}-${options.height}-${options.color}-${options.opacity || 0}-${
+    options.size
+  }-${options.location}`
   if (cache.get(cacheKey)) return cache.get(cacheKey) as Uint8Array
 
   const buffer = Buffer.alloc(options.width * options.height * 4)
@@ -475,7 +487,6 @@ export const parseBase64 = (png64: string, options?: OptionParseBase64): Promise
   })
 }
 
-
 /**
  * Converts an imageBuffer into a base64 encoded PNG string for use as a buttons png64 styling
  *
@@ -489,13 +500,13 @@ export const toPNG64 = (options: OptionToPNG64): string => {
     filterType: -1,
     inputHasAlpha: true,
     colorType: 6,
-    deflateLevel: 0
+    deflateLevel: 0,
   })
 
   const newBuffer = Buffer.alloc(options.width * options.height * 4)
 
   options.image.forEach((value, index) => {
-    const position = (index + 3) % 4 + Math.floor(index / 4) * 4
+    const position = ((index + 3) % 4) + Math.floor(index / 4) * 4
     newBuffer[position] = value
   })
 
