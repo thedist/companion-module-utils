@@ -116,7 +116,7 @@ exampleBorderFeedback: {
         width: feedback.image.width,
         height: feedback.image.height,
         color: combineRgb(255, 0, 0),
-        size: 5.
+        size: 5,
         opacity: 255,
         type: 'border'
       }
@@ -229,7 +229,7 @@ exampleCornerFeedback: {
         width: feedback.image.width,
         height: feedback.image.height,
         color: combineRgb(255, 0, 0),
-        size: 5.
+        size: 5,
         location: 'topLeft',
         opacity: 255
       }
@@ -352,7 +352,7 @@ exampleRectFeedback: {
         rectWidth: 60,
         rectHeight: 26,
         strokeWidth: 4,
-        opacity: 255
+        opacity: 255,
         fillColor: combineRgb(255, 0, 0),
         fillOpacity: 128,
         offsetX: 6,
