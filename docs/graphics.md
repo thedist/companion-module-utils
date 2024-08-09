@@ -147,7 +147,7 @@ Generates an image buffer of a circle at a specified radius. Width and Height ar
 | ----- | ----- |
 | `opacity` | 0 - 255 |
 
-### Exmaple
+### Example
 ```javascript
 const { graphics } = require('companion-module-utilz')
 
