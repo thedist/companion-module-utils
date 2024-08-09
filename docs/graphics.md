@@ -1,5 +1,5 @@
 # Graphics
-This module currently has the following methods to help draw graphics in an image buffer. Using `stackImage` it is also possible stack multiple of these image buffers to create more complext graphics, some of which are already made available as a [Presets](./presets.md)
+This module currently has the following methods to help draw graphics in an image buffer. Using `stackImage` it is also possible stack multiple of these image buffers to create more complex graphics, some of which are already made available as [Presets](./presets.md)
 
 [Bar](#bar)  
 [Border](#border)  
@@ -15,7 +15,7 @@ This module currently has the following methods to help draw graphics in an imag
 ---
 ## Bar
 ### Description
-Generates an imagebuffer of a bar representing a value from 0 to 100. The bar can be colored in different sections by providing multiple `colors`, where the total size equals 100. This for example allows for both simple progress bars to more complex volume meters with different colored sections for different dB levels.
+Generates an imagebuffer of a bar representing a value from 0 to 100. The bar can be colored in different sections by providing multiple `colors`, where the total size equals 100. This allows for simple progress bars and more complex volume meters with different colored sections for different dB levels.
 
 ![](./images/barExample.png)  
 
@@ -79,7 +79,7 @@ micVolumeFeedback: {
 ---
 ## Border
 ### Description
-Generates a border around the outter edge of the image, defaulting to all sides but can be limit to a specifc side.
+Generates a border around the outter edge of the image, defaulting to all sides but can be limited to a specifc side.
 
 ![](./images/borderExample.png) 
 
@@ -153,10 +153,10 @@ const { graphics } = require('companion-module-utilz')
 
 ...
 
-exampleBorderFeedback: {
+exampleCircleFeedback: {
   type: 'advanced',
-  name: 'Border example',
-  description: 'Checks a value, and if true returns a border around the edge of the button',
+  name: 'Circle example',
+  description: 'Checks a value, and if true returns a red circle icon',
   options: [
     ...
   ],
@@ -173,7 +173,7 @@ exampleBorderFeedback: {
       const circleIcon = graphics.icon({
           width: feedback.image.width,
           height: feedback.image.height,
-          custom: circle1
+          custom: circle,
           type: 'custom',
           customHeight: 16,
           customWidth: 16,
@@ -290,11 +290,11 @@ micStateFeedback: {
     }
 
     if (mic.muted) {
-      options.type === 'mic3'
+      options.type = 'mic3'
     } else if (mic.active) {
-      options.type === 'mic5'
+      options.type = 'mic5'
     } else {
-      options.type === 'mic1'
+      options.type = 'mic1'
     }
 
     return {

@@ -1,5 +1,5 @@
 # Module Utils for Bitfocus Companion Modules
-This project provides utility functions to simplify some of the complex tasks that is common throughout many Companion modules, such as the generation of graphics in Feedbacks.
+This project provides utility functions to simplify some of the complex tasks common throughout many Companion modules, such as the generation of graphics in Feedbacks.
 
 ## Features
 * Create simple button graphics for use in Bitfocus Companion modules
