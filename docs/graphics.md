@@ -1,5 +1,5 @@
 # Graphics
-This module currently has the following methods to help draw graphics in an image buffer. Using `stackImage` it is also possible stack multiple of these image buffers to create more complex graphics, some of which are already made available as [Presets](./presets.md)
+This module currently has the following methods to help draw graphics in an image buffer. Using `stackImage` it is also possible to stack multiple of these image buffers to create more complex graphics, some of which are already made available as [Presets](./presets.md)
 
 [Bar](#bar)  
 [Border](#border)  
